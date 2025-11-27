@@ -26,7 +26,7 @@ jobs:
       - name: Run tests
         run: npm test
 
-  docker-build:
+  docker-build-and-push:
     runs-on: ubuntu-latest
     needs: build-and-test
 
@@ -34,5 +34,18 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Build Docker image
-        run: docker build -t devsu-node-demo:${{ github.sha }} .
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GCHR_USERNAME }}" --password-stdin
+
+      - name: Build and tag Docker image
+        env:
+          IMAGE_NAME: ghcr.io/joseat93/aplicacion_devops_devsu
+        run: |
+          docker build -t $IMAGE_NAME:latest -t $IMAGE_NAME:${{ github.sha }} .
+
+      - name: Push Docker image to GHCR
+        env:
+          IMAGE_NAME: ghcr.io/joseat93/aplicacion_devops_devsu
+        run: |
+          docker push $IMAGE_NAME:latest
+          docker push $IMAGE_NAME:${{ github.sha }}
