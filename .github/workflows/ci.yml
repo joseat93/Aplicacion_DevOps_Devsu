@@ -84,6 +84,40 @@ jobs:
         with:
           name: trivy-report
           path: trivy-report.json
+  ci-report:
+    runs-on: ubuntu-latest
+    needs: [build-and-test, security-scan]
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage
+          path: coverage
+
+      - name: Download trivy artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: trivy-report
+          path: .
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Generate CI report
+        run: node ci/generate-report.mjs
+
+      - name: Upload CI Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-report
+          path: ci-report.md
+
 
    
 
