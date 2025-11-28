@@ -63,7 +63,13 @@ jobs:
     needs: docker-build-and-push
 
     steps:
-      - name: Run Trivy image scan
+      - name: Login to GHCR
+        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
+
+      - name: Pull image from GHCR
+        run: docker pull ghcr.io/joseat93/aplicacion_devops_devsu:latest
+
+      - name: Run Trivy scan
         uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: image
@@ -72,13 +78,13 @@ jobs:
           output: trivy-report.json
           ignore-unfixed: true
           exit-code: '0'
-          github-pat: ${{ secrets.GHCR_TOKEN }}
 
       - name: Upload Trivy report
         uses: actions/upload-artifact@v4
         with:
           name: trivy-report
           path: trivy-report.json
+
    
 
     
