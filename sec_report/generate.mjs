@@ -23,20 +23,40 @@ function findFile(filename, startDir = process.cwd()) {
   return null;
 }
 
-// 🔍 Buscar coverage-summary.json
-const coverageSummaryPath = findFile('coverage-summary.json');
-if (!coverageSummaryPath) {
-  throw new Error('No se encontró coverage-summary.json en el workspace');
+/**
+ * Utilidad: imprimir archivos en workspace
+ */
+function logWorkspace() {
+  console.log("\n========== WORKSPACE FILES ==========");
+  function printDir(dir, prefix = "") {
+    for (const file of fs.readdirSync(dir)) {
+      const fullPath = path.join(dir, file);
+      console.log(prefix + file);
+      if (fs.statSync(fullPath).isDirectory()) {
+        printDir(fullPath, prefix + "  ");
+      }
+    }
+  }
+  printDir(process.cwd());
+  console.log("=====================================\n");
 }
 
-// 🔍 Buscar trivy-report.json
+// Buscar TRIVY
 const trivyReportPath = findFile('trivy-report.json');
 if (!trivyReportPath) {
-  throw new Error('No se encontró trivy-report.json en el workspace');
+  logWorkspace();
+  throw new Error('❌ No se encontró trivy-report.json en el workspace');
 }
 
-console.log('Usando coverage:', coverageSummaryPath);
-console.log('Usando trivy   :', trivyReportPath);
+// Buscar COVERAGE
+const coverageSummaryPath = findFile('coverage-summary.json');
+if (!coverageSummaryPath) {
+  logWorkspace();
+  throw new Error('❌ No se encontró coverage-summary.json en el workspace');
+}
+
+console.log('✔ Usando coverage:', coverageSummaryPath);
+console.log('✔ Usando trivy   :', trivyReportPath);
 
 // Leer coverage
 const coverageData = JSON.parse(fs.readFileSync(coverageSummaryPath, 'utf8'));
@@ -87,4 +107,4 @@ ${new Date().toISOString()}
 `;
 
 fs.writeFileSync('ci-report.md', md, 'utf8');
-console.log('Generated ci-report.md');
+console.log('🎉 Generated ci-report.md');
