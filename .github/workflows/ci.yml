@@ -110,7 +110,7 @@ jobs:
           node-version: "20"
 
       - name: Generate CI report
-        run: node ci/generate-report.mjs
+        run: node sec_report/generate.mjs
 
       - name: Upload CI Report
         uses: actions/upload-artifact@v4
