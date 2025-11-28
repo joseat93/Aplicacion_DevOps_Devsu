@@ -64,7 +64,7 @@ jobs:
 
     steps:
       - name: Login to GHCR
-        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
+        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
       - name: Pull image from GHCR
         run: docker pull ghcr.io/joseat93/aplicacion_devops_devsu:latest
