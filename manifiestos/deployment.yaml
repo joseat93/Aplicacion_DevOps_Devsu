@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devsu-app
+  namespace: devsu-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: devsu-app
+  template:
+    metadata:
+      labels:
+        app: devsu-app
+    spec:
+      imagePullSecrets:
+        - name: ghcr-credentials
+      containers:
+        - name: devsu-app
+          image: ghcr.io/joseat93/aplicacion_devops_devsu:latest
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: devsu-app-config
+            - secretRef:
+                name: devsu-app-secrets
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /api/users
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/users
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+
