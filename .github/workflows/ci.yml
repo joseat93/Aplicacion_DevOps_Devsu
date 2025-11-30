@@ -117,7 +117,24 @@ jobs:
         with:
           name: ci-report
           path: ci-report.md
+deploy:
+  needs: [docker-publish]
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
 
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+
+    - name: Configure kubeconfig
+      run: echo "${{ secrets.KUBECONFIG_CONTENT }}" > kubeconfig.yaml
+
+    - name: Deploy manifests
+      run: |
+        kubectl --kubeconfig=kubeconfig.yaml apply -f manifiestos/
+git 
 
    
 
